@@ -1,0 +1,21 @@
+{
+  "name": "p5_ko",
+  "version": "0.0.0",
+  "authors": [
+    "Haopei Yang <haopeiyang@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "normalize.css": "~3.0.2"
+  },
+  "dependencies": {
+    "bootstrap": "~3.3.1"
+  }
+}
