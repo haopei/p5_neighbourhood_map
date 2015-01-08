@@ -8,8 +8,8 @@ var infoWindow = new google.maps.InfoWindow();
 // VIEWMODEL
 var ViewModel = function() {
   var self = this;
-  this.msgToUser = ko.observable();
-  this.currentAddress = ko.observable("2465 Latham Street, Mountain View, California");
+  this.msgToUser = ko.observable("Pizza Anywhere!");
+  this.currentAddress = ko.observable("Georgetown Guyana");
   
   // a list of 'place' objects
   this.nearByPlaces = ko.observableArray([]);
@@ -23,6 +23,7 @@ var ViewModel = function() {
 
 
   // geocoding
+  // TODO: fail gracefully
   // takes placename and returns {lat,lng} object
   this.geocode = function(location, cb) {
     var requestURL = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + location + '&key=AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4';
@@ -43,11 +44,12 @@ var ViewModel = function() {
     var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
         clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
         query = 'pizza',
-        requestURL = 'https://api.foursquare.com/v2/venues/search?client_id=' + clientId + '&client_secret=' + clientSecret + '&v=20130815&ll=' + lat + ',' + lng + '&query=' + query,
-        markerOption;
+        requestURL = 'https://api.foursquare.com/v2/venues/search?client_id=' + clientId + '&client_secret=' + clientSecret + '&limit=20&v=20130815&ll=' + lat + ',' + lng + '&query=' + query,
+        markerOption,
+        foursquareNearByPlaces;
     
     $.getJSON(requestURL, function(data) {
-      var foursquareNearByPlaces = data.response.venues;
+      foursquareNearByPlaces = data.response.venues;
       foursquareNearByPlaces.forEach(function(p) {
       console.log(p);
       // push marker objects to self.nearByMarkers
@@ -64,11 +66,14 @@ var ViewModel = function() {
     });
 
     }).success(function(data) {
-      self.msgToUser('We found ' + self.numOfNearByPlaces() + ' pizza spots nearby!');
-      console.log('success: find with foursquare :D');
-      // console.log('self.nearbyPlaces():');
-      // console.log(self.nearByPlaces());
-      self.setNearByMarkers();
+      if (foursquareNearByPlaces.length > 0) {
+        self.msgToUser('We found ' + self.numOfNearByPlaces() + ' pizza spots nearby!');
+        console.log('success: find with foursquare :D');
+        self.setNearByMarkers();
+      } else {
+        self.msgToUser('No pizza here. Try another location');
+      }
+
     });
   };
 
@@ -76,8 +81,8 @@ var ViewModel = function() {
     var marker = new google.maps.Marker({
       map: self.map,
       position: latlng(lat,lng),
-      title: "You are here",
-      icon: {url: 'images/greenMarker.png'}
+      title: "You are here"
+      // icon: {url: 'images/greenMarker.png'}
     });
 
     google.maps.event.addListener(marker, 'click', (function(marker) {
@@ -102,9 +107,11 @@ var ViewModel = function() {
         map: self.map,
         position: latlng(place.location.lat, place.location.lng),
         title: place.name,
-        address: place.location.address
+        address: place.location.address,
+        icon: 'images/pizzaMarker.png'
       };
       marker = new google.maps.Marker(markerOption);
+      
       // console.log(marker);
 
       bounds.extend(marker.getPosition()); // set map zoom to just adequately contain pins
@@ -112,7 +119,8 @@ var ViewModel = function() {
       // marker click event handler
       google.maps.event.addListener(marker, 'click', (function(marker) {
         return function() {
-          infoWindow.setContent('<div class="place-wrapper"><h6 class="name">' + marker.title + '</h6><div class="address">' + marker.address + '</div></div>');
+          console.log(marker);
+          infoWindow.setContent('<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div></div>');
           infoWindow.open(self.map, marker);
         };
       })(marker));
@@ -125,7 +133,7 @@ var ViewModel = function() {
   // goes to marker position when a corresponding place is clicked
   this.goToMarker = function(marker) {
     self.map.setCenter(latlng(marker.position.k, marker.position.D));
-    infoWindow.setContent('<div class="place-wrapper"><h6 class="name">' + marker.title + '</h6><div class="address">' + marker.address + '</div></div>');
+    infoWindow.setContent('<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div></div>');
     infoWindow.open(self.map, marker);
   };
 
@@ -140,12 +148,12 @@ var ViewModel = function() {
     // set current location being visited
     self.setMarker(lat, lng);
 
-    // goes to (data.lat, data.lng)
-    self.map.setCenter(latlng(lat, lng));
-
     // find nearby with Foursquare
     self.msgToUser('Looking for nearby places...');
     self.findNearByWithFoursquare(lat, lng);
+
+    // goes to (data.lat, data.lng)
+    self.map.setCenter(latlng(lat, lng));
 
   };
 
@@ -163,10 +171,10 @@ var ViewModel = function() {
   // init map
   var mapDiv, mapOptions;
   mapDiv = document.getElementById('map');
-  console.log(mapDiv);
   mapOptions = {
     zoom: 9,
-    center: latlng(37.7831, -122.4039)
+    center: latlng(37.7831, -122.4039),
+    disableDefaultUI: true
   };
   self.map = new google.maps.Map(mapDiv, mapOptions);
 }; // ViewModel
@@ -175,6 +183,9 @@ var ViewModel = function() {
 ko.applyBindings( new ViewModel() );
 
 // todo
+// undefined address on marker is ugly
 // make currentmarkeroptions derive from current places
 // click binding of current places list
 
+// rsources
+// pizza icon: http://www.orderup.com.au/wp-content/uploads/2014/01/pizza_icon.png

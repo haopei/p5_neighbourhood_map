@@ -2,53 +2,40 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>P5 w/KO</title>
+	<title>Pizza Anywhere (except in North Korea)</title>
 	<link rel="stylesheet" href="bower_components/normalize.css/normalize.css" />
-  <!-- <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"> -->
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
   <link rel="stylesheet" href="style.css">
 
   <style type="text/css">
-    html, body, #map { height: 100%; width: 100%; margin: 0; }
-    .header { background: #ddd; }
   </style>
 
   <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 </head>
 
 <body>
+  <div id="map"></div>
 
-  <div class="container">
-    <div class="row">
-      <header class="col-sm-3">Pizza Anywhere</header>
-      <form class="col-sm-9" data-bind="submit: handleLocationInput" id="area-form">
-        <input data-bind="value: currentAddress" id="area" type="text" value="San Francisco" placeholder="Neighbourhood">
-        <input type="submit" value="Find Pizza">
-      </form>
-    </div>
-  </div>
-  
-  <div data-bind="text: msgToUser"></div>
-  
-  <div data-bind="visible: nearByMarkers().length > 0" class="right-content">
-    <ul data-bind="foreach: nearByMarkers">
-      <li data-bind="text: title, click: $root.goToMarker"></li>
-    </ul>
-  </div>
+  <div class="results">
+    <div data-bind="visible: nearByMarkers().length > 0">
+      <ul class="nearby-list" data-bind="foreach: nearByMarkers">
+        <li data-bind="click: $root.goToMarker">
+          <h5 data-bind="text: title"></h5>
+          <div data-bind="text: address"></div>
+        </li>
+      </ul>
+    </div>      
+  </div> <!-- results -->
 
-<div id="map"></div>  
+  <header>
+    <h2 class="msg-to-user" data-bind="text: msgToUser"></h2> 
 
+    <form data-bind="submit: handleLocationInput" class="location-form">
+      <input data-bind="value: currentAddress" type="text" value="San Francisco" placeholder="Neighbourhood">
+      <input type="submit" value="Find Pizza">
+    </form>
 
-  
-  
-
-
-  
-
-  
-  <div data-bind="visible: numOfNearByPlaces().length > 0">Places Found: <span data-bind="text: numOfNearByPlaces"></span></div>
-
-  
-  
+  </header>
 
   <script src="bower_components/jquery/dist/jquery.js"></script>
   <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
@@ -56,7 +43,7 @@
   <script src="app.js"></script>
 
   <script type="text/javascript">
-  	// script
+  	// google.maps.event.addDomListener(window, 'load', init);
   </script>
 
 </body>
