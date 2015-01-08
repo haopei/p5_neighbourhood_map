@@ -1,0 +1,12 @@
+{
+  "vars": {},
+  "css": [
+    "grid.less",
+    "forms.less",
+    "buttons.less"
+  ],
+  "js": [
+    "scrollspy.js"
+  ],
+  "customizerUrl": "http://getbootstrap.com/customize/?id=7287192021243aafc071"
+}

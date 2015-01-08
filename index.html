@@ -4,25 +4,51 @@
 	<meta charset="utf-8" />
 	<title>P5 w/KO</title>
 	<link rel="stylesheet" href="bower_components/normalize.css/normalize.css" />
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <!-- <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"> -->
+  <link rel="stylesheet" href="style.css">
 
   <style type="text/css">
     html, body, #map { height: 100%; width: 100%; margin: 0; }
-    #autocomplete{width: 100%}
+    .header { background: #ddd; }
   </style>
+
   <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 </head>
 
 <body>
-  <div>Places Found: <span data-bind="text: numberOfNearByPlaces"></span></div>
-  <input id="autocomplete" type="text" placeholder="Enter Place Name, Street or City...">
 
-  <form data-bind="submit: handleLocationInput" id="area-form">
-  <input data-bind="value: currentPlace" id="area" type="text" value="San Francisco" placeholder="Neighbourhood">
-  <input type="submit" value="Find Pizza">
-  </form>
+  <div class="container">
+    <div class="row">
+      <header class="col-sm-3">Pizza Anywhere</header>
+      <form class="col-sm-9" data-bind="submit: handleLocationInput" id="area-form">
+        <input data-bind="value: currentAddress" id="area" type="text" value="San Francisco" placeholder="Neighbourhood">
+        <input type="submit" value="Find Pizza">
+      </form>
+    </div>
+  </div>
+  
+  <div data-bind="text: msgToUser"></div>
+  
+  <div data-bind="visible: nearByMarkers().length > 0" class="right-content">
+    <ul data-bind="foreach: nearByMarkers">
+      <li data-bind="text: title, click: $root.goToMarker"></li>
+    </ul>
+  </div>
 
-  <div id="map"></div>
+<div id="map"></div>  
+
+
+  
+  
+
+
+  
+
+  
+  <div data-bind="visible: numOfNearByPlaces().length > 0">Places Found: <span data-bind="text: numOfNearByPlaces"></span></div>
+
+  
+  
 
   <script src="bower_components/jquery/dist/jquery.js"></script>
   <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>

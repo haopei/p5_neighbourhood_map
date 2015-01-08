@@ -1,0 +1,7 @@
+.right-content {
+  float: right;
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  background: #fff;  
+}

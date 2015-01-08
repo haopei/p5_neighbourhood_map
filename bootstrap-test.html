@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>P5 w/KO</title>
+  <link rel="stylesheet" href="bower_components/normalize.css/normalize.css" />
+
+  <!-- <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"> -->
+
+  <style type="text/css">
+    #map { height: 100%; width: 100%; margin: 0; }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <header class="row">
+      <div class="col-md-12">pizza anywhere</div>
+      <div data-bind="text: msgToUser"></div>
+    </header>
+    <div class="col-sm-8">
+      <form data-bind="submit: handleLocationInput" id="area-form">
+        <input data-bind="value: currentAddress" id="area" type="text" value="San Francisco" placeholder="Neighbourhood">
+        <input type="submit" value="Find Pizza">
+      </form>
+    </div>
+    
+    <div class="col-sm-4">
+      <ul data-bind="foreach: nearByMarkers">
+        <li data-bind="text: title, click: $root.goToMarker"></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div id="map"></div>
+
+  <div>Places Found: <span data-bind="text: numOfNearByPlaces"></span></div>
+  <script src="bower_components/jquery/dist/jquery.js"></script>  
+  <script src="bower_components/knockout/dist/knockout.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

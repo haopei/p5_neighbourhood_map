@@ -2,148 +2,171 @@ function latlng(lat,lng) {
   return new google.maps.LatLng(lat,lng);
 }
 
-  // geocoding
-  // takes placename and returns {lat,lng} object
-function geocode(location, cb) {
-  var requestURL = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + location + '&key=AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4';
-  $.getJSON(requestURL, function(data) {
-    // the code is placed here inside the .success() function instead
-    //   because it calls the cb after retriving the data.
-    // if the code had been placed inside here, there would be no way to 
-    //   know if the data had been returned before the cb runs.
-  }).success(function(data) {
-    var place = {};
-    place.lat = data['results'][0]['geometry']['location']['lat'];
-    place.lng = data['results'][0]['geometry']['location']['lng'];
-    place.formattedAddress = data['results'][0]['formatted_address'];
-    cb(place);
-    console.log('geocode success');
-  });
-}
-
-var Marker = function(data) {
-  this.placeName = data.placeName;
-  this.lat = data.lat;
-  this.lng = data.lng;
-};
-
+// global infowindow
+var infoWindow = new google.maps.InfoWindow();
 
 // VIEWMODEL
 var ViewModel = function() {
   var self = this;
-  this.currentPlace = ko.observable("2465 Latham Street, Mountain View, California");
-  this.currentPlaceData = ko.observable();
-  this.currentNearByPlacesMarkerOptions = ko.observableArray([]);
-  this.numberOfNearByPlaces = ko.computed(function() {
-    return this.currentNearByPlacesMarkerOptions().length;
+  this.msgToUser = ko.observable();
+  this.currentAddress = ko.observable("2465 Latham Street, Mountain View, California");
+  
+  // a list of 'place' objects
+  this.nearByPlaces = ko.observableArray([]);
+
+  // used by goToMarker()
+  this.nearByMarkers = ko.observableArray([]);
+  
+  this.numOfNearByPlaces = ko.computed(function() {
+    return this.nearByMarkers().length;
   }, this);
 
-  // takes an array of markerOptions inside self.currentNearByPlacesMarkerOptions()
-  //  creates marker objects with each
-  //  and places them on the map
-  // items inside the currentNearByPlacesMarkerOptions() is generated inside this.findNearBy()
+
+  // geocoding
+  // takes placename and returns {lat,lng} object
+  this.geocode = function(location, cb) {
+    var requestURL = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + location + '&key=AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4';
+    $.getJSON(requestURL, function(data) {
+      self.msgToUser('Geocoding your location query...');
+    }).success(function(data) {
+      var place = {};
+      place.lat = data['results'][0]['geometry']['location']['lat'];
+      place.lng = data['results'][0]['geometry']['location']['lng'];
+      place.formattedAddress = data['results'][0]['formatted_address'];
+      cb(place);
+      console.log('geocode success');
+    });
+  };
+
+  // Find NearbyPlaces with Foursquare
+  this.findNearByWithFoursquare = function(lat, lng) {
+    var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
+        clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
+        query = 'pizza',
+        requestURL = 'https://api.foursquare.com/v2/venues/search?client_id=' + clientId + '&client_secret=' + clientSecret + '&v=20130815&ll=' + lat + ',' + lng + '&query=' + query,
+        markerOption;
+    
+    $.getJSON(requestURL, function(data) {
+      var foursquareNearByPlaces = data.response.venues;
+      foursquareNearByPlaces.forEach(function(p) {
+      console.log(p);
+      // push marker objects to self.nearByMarkers
+      self.nearByMarkers.push(new google.maps.Marker({
+        map: self.map,
+        position: latlng(p.location.lat, p.location.lng),
+        title: p.name,
+        address: p.location.address,
+        url: p.url
+      }));
+
+      // push place objects to self.nearByPlaces
+      self.nearByPlaces.push(p);
+    });
+
+    }).success(function(data) {
+      self.msgToUser('We found ' + self.numOfNearByPlaces() + ' pizza spots nearby!');
+      console.log('success: find with foursquare :D');
+      // console.log('self.nearbyPlaces():');
+      // console.log(self.nearByPlaces());
+      self.setNearByMarkers();
+    });
+  };
+
+  this.setMarker = function(lat, lng) {
+    var marker = new google.maps.Marker({
+      map: self.map,
+      position: latlng(lat,lng),
+      title: "You are here",
+      icon: {url: 'images/greenMarker.png'}
+    });
+
+    google.maps.event.addListener(marker, 'click', (function(marker) {
+      return function() {
+        infoWindow.setContent('You are here');
+        infoWindow.open(self.map, marker);
+      };
+    })(marker));
+  };
+
   this.setNearByMarkers = function() {
     var marker,
+        markerOption,
         bounds = new google.maps.LatLngBounds(),
-        markerOptions = self.currentNearByPlacesMarkerOptions(),
-        infoWindow = new google.maps.InfoWindow();
+        // infoWindow = new google.maps.InfoWindow(),
+        nearByPlaces = self.nearByPlaces();
+
+    // console.log(self.nearByPlaces());
     
-    markerOptions.forEach(function(mo) {
-      marker = new google.maps.Marker(mo);
-      bounds.extend(marker.getPosition());
+    nearByPlaces.forEach(function(place) {
+      markerOption = {
+        map: self.map,
+        position: latlng(place.location.lat, place.location.lng),
+        title: place.name,
+        address: place.location.address
+      };
+      marker = new google.maps.Marker(markerOption);
+      // console.log(marker);
+
+      bounds.extend(marker.getPosition()); // set map zoom to just adequately contain pins
       
       // marker click event handler
-      google.maps.event.addListener(marker, 'click', (function(marker, mo) {
+      google.maps.event.addListener(marker, 'click', (function(marker) {
         return function() {
-          infoWindow.setContent(marker.title);
+          infoWindow.setContent('<div class="place-wrapper"><h6 class="name">' + marker.title + '</h6><div class="address">' + marker.address + '</div></div>');
           infoWindow.open(self.map, marker);
         };
-      })(marker, mo));
+      })(marker));
 
       // fit bounds
       self.map.fitBounds(bounds);
     });
-
-    console.log(bounds);
   };
 
-  this.findNearBy = function(lat, lng, map) {
-    var request = {
-      location: latlng(lat, lng),
-      radius: '500',
-      query: 'pizza'
-    };
-    service = new google.maps.places.PlacesService(map);
-    service.textSearch(request, function(response, status) {
-      if (status === google.maps.places.PlacesServiceStatus.OK) {
-        // console.log(response);
-        console.log('findNearBy successful');
-        var i, name, address, rating, lat, lng, marker, markerOptions;
-        for (i = 0; i < response.length; i++) {
-          // console.log(response[i]);
-          name = response[i]['name'];
-          address = response[i]['formatted_address'];
-          rating = response[i]['rating'];
-          lat = response[i]['geometry']['location']['k'];
-          lng = response[i]['geometry']['location']['D'];
-
-          // define marker options object
-          markerOptions = {};
-          markerOptions.map = self.map;
-          markerOptions.position = latlng(lat,lng);
-          markerOptions.title = name + " " + address;
-
-          // push marker to array
-          self.currentNearByPlacesMarkerOptions.push(markerOptions);
-          
-          // places markers on map
-          self.setNearByMarkers();
-
-          // map.setZoom(12);
-        } //for
-        console.log(self.currentNearByPlacesMarkerOptions());
-      } else {
-        // TODO: graceful error handling
-        console.log('error returning nearby places');
-      }
-    });
-  }; //findNearBy
+  // goes to marker position when a corresponding place is clicked
+  this.goToMarker = function(marker) {
+    self.map.setCenter(latlng(marker.position.k, marker.position.D));
+    infoWindow.setContent('<div class="place-wrapper"><h6 class="name">' + marker.title + '</h6><div class="address">' + marker.address + '</div></div>');
+    infoWindow.open(self.map, marker);
+  };
 
   // the 'data' param comes from geocode()'s cb()
   // contains place {formattedAddress, lat, lng}
   self.goTo = function(data) {
-    // console.log(data);
-    var lat = data.lat,
-        lng = data.lng;
-    
-    // set current place object to observable
-    self.currentPlaceData(data);
+    var lat = data.lat, lng = data.lng;
 
-    // set current address to observable
-    self.currentPlace(data.formattedAddress);
+    // set currentAddress to be used by geocode()
+    self.currentAddress(data.formattedAddress);
 
-    // change center of map according to data
-    // todo: since we are getting multiple data, 
-    // we should fit the map to bound
-    self.map.setCenter( latlng(data.lat, data.lng) );
+    // set current location being visited
+    self.setMarker(lat, lng);
 
-    // find nearby pizza places
-    self.findNearBy(lat, lng, self.map);
+    // goes to (data.lat, data.lng)
+    self.map.setCenter(latlng(lat, lng));
+
+    // find nearby with Foursquare
+    self.msgToUser('Looking for nearby places...');
+    self.findNearByWithFoursquare(lat, lng);
+
   };
 
-  // takes user input
   self.handleLocationInput = function() {
-    var place = self.currentPlace();
-    self.currentNearByPlacesMarkerOptions([]);
-    geocode(place, self.goTo); // geocode place and cb using goTo()
+    var addressQuery = self.currentAddress();
+
+    // clear existing results before processing new query
+    self.nearByMarkers([]);
+    self.nearByPlaces([]);
+    
+    // once the address is geocoded, the goTo() callback runs
+    self.geocode(addressQuery, self.goTo);
   };
 
   // init map
   var mapDiv, mapOptions;
   mapDiv = document.getElementById('map');
+  console.log(mapDiv);
   mapOptions = {
     zoom: 9,
-    center: new google.maps.LatLng(37.7831, -122.4039)
+    center: latlng(37.7831, -122.4039)
   };
   self.map = new google.maps.Map(mapDiv, mapOptions);
 }; // ViewModel
@@ -151,35 +174,7 @@ var ViewModel = function() {
 
 ko.applyBindings( new ViewModel() );
 
+// todo
+// make currentmarkeroptions derive from current places
+// click binding of current places list
 
-// FINDING NEARBY PLACES
-// Get the value of the user input and geocode its real address
-// geocode runs and returns an object with lat/lng/formatted_address etc
-// geocode takes a goTo(returnedObject) cb with the returned object as parameter
-// goTo sets the lat/lng to the current place
-//   and runs the findNearBy function
-// findNearBy returns a list of places objects. We extract the 
-//   info to make markerOption objects to be passed to
-//   self.currentNearByPlacesMarkerObject
-
-  // var initialMarkers = [
-  //   {
-  //     'placeName': 'Imperial',
-  //     'lat': 38.7831,
-  //     'lng': -122.4039
-  //   },
-  //   {
-  //     'placeName': 'Pegasus',
-  //     'lat': 38.7831,
-  //     'lng': -123.4039
-  //   }
-  // ];
-
-  /**
-   * Sets markers to map
-   * @param {array of object} Takes list of marker objects
-   */
-  // this.markersList = ko.observableArray([]);
-  // initialMarkers.forEach(function(marker) {
-  //   self.markersList.push( new Marker(marker) );
-  // });
