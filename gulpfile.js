@@ -1,36 +1,50 @@
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minifyCss = require('gulp-minify-css'),
+    plumber = require('gulp-plumber'), // prevents pipe breaking caused by errors 
     sass = require('gulp-ruby-sass');
 
-var paths = {
+var srcPaths = {
   'js': 'src/js/*.js',
   'scss': 'src/scss/*.scss',
-  'css': 'src/css/'
+  'css': 'src/css/',
+  'img': 'src/images/*'
+};
+
+var distPaths = {
+  'js': 'dist/js/',
+  'css': 'dist/css/',
+  'img': 'dist/images/'
 };
 
 // Scripts Task (Uglifies JS files)
 //    can be run separately with $ gulp scripts
 gulp.task('scripts', function() {
-  gulp.src(paths.js)
-  .pipe(uglify())
-  .pipe(gulp.dest('dist/js'));
+  gulp.src(srcPaths.js)
+    .pipe(plumber()) // placed before all other pipes
+    .pipe(uglify())
+    .pipe(gulp.dest(distPaths.js));
 });
 
 // Styles Task
+// converts .scss to .css 
+//  from src into both src/css and dist/css
 gulp.task('styles', function() {
-  gulp.src(paths.scss)
-  .pipe(sass())
-  .pipe(minifyCss({ keepBreaks:true }))
-  .pipe(gulp.dest(paths.css));
+  gulp.src(srcPaths.scss)
+    .pipe(plumber()) // placed before all other pipes again
+    .pipe(sass())
+    .pipe(minifyCss({ keepBreaks:true }))
+    .pipe(gulp.dest(srcPaths.css))
+    .pipe(gulp.dest(distPaths.css));
 });
 
 // Watch JS (runs continuously)
 // watches for changes in a specified folder
 //   and runs tasks on them
 gulp.task('watch', function() {
-  gulp.watch(paths.js, ['scripts']);
-  gulp.watch(paths.scss, ['styles']);
+  gulp.watch(srcPaths.js, ['scripts']);
+  gulp.watch(srcPaths.scss, ['styles']);
+  // gulp.watch(srcPaths.img, ['image']);
 });
 
 // default is required

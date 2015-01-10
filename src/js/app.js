@@ -21,7 +21,6 @@ var ViewModel = function() {
     return this.nearByMarkers().length;
   }, this);
 
-
   // geocoding
   // TODO: fail gracefully
   // takes placename and returns {lat,lng} object
@@ -40,7 +39,7 @@ var ViewModel = function() {
   };
 
   // Find NearbyPlaces with Foursquare
-  this.findNearByWithFoursquare = function(lat, lng) {
+  this.findNearByWithFoursquare = function(lat, lng, cb) {
     var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
         clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
         query = 'pizza',
@@ -51,14 +50,15 @@ var ViewModel = function() {
     $.getJSON(requestURL, function(data) {
       foursquareNearByPlaces = data.response.venues;
       foursquareNearByPlaces.forEach(function(p) {
-      console.log(p);
+      // console.log(p);
       // push marker objects to self.nearByMarkers
       self.nearByMarkers.push(new google.maps.Marker({
         map: self.map,
         position: latlng(p.location.lat, p.location.lng),
         title: p.name,
         address: p.location.address,
-        url: p.url
+        url: p.url,
+        id: p.id
       }));
 
       // push place objects to self.nearByPlaces
@@ -70,6 +70,11 @@ var ViewModel = function() {
         self.msgToUser('We found ' + self.numOfNearByPlaces() + ' pizza places nearby!');
         console.log('success: find with foursquare :D');
         self.setNearByMarkers();
+
+        if (cb) {
+          cb(); // used for setting 'clickable' class to <li>
+        }
+
       } else {
         self.msgToUser('No pizza here. Try another location');
       }
@@ -108,7 +113,8 @@ var ViewModel = function() {
         position: latlng(place.location.lat, place.location.lng),
         title: place.name,
         address: place.location.address,
-        icon: 'images/pizzaMarker.png'
+        icon: 'images/pizzaMarker.png',
+        id: place.id
       };
       marker = new google.maps.Marker(markerOption);
       
@@ -119,7 +125,7 @@ var ViewModel = function() {
       // marker click event handler
       google.maps.event.addListener(marker, 'click', (function(marker) {
         return function() {
-          console.log(marker);
+          console.log(marker.id);
           infoWindow.setContent('<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div></div>');
           infoWindow.open(self.map, marker);
         };
@@ -132,9 +138,18 @@ var ViewModel = function() {
 
   // goes to marker position when a corresponding place is clicked
   this.goToMarker = function(marker) {
+    console.log(marker);
     self.map.setCenter(latlng(marker.position.k, marker.position.D));
     infoWindow.setContent('<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div></div>');
     infoWindow.open(self.map, marker);
+  };
+
+  this.markerZoomIn = function(data) {
+    self.map.setZoom(self.map.zoom + 1);
+  };
+
+  this.markerZoomOut = function(data) {
+    self.map.setZoom(self.map.zoom - 1);
   };
 
   // the 'data' param comes from geocode()'s cb()
@@ -150,11 +165,25 @@ var ViewModel = function() {
 
     // find nearby with Foursquare
     self.msgToUser('Looking for nearby places...');
-    self.findNearByWithFoursquare(lat, lng);
+    
+    self.findNearByWithFoursquare(lat, lng, function() {
+      // $('.clickable').click(function() {
+      //   $('.clickable').removeClass('active');
+      //   $(this).addClass("active");
+      // });
+
+      // // add 'active' class to <li> item
+      // $('#' + marker.id).click(function(){
+      //   $(this).addClass('active');
+      //   console.log(marker.id);
+      // });
+
+    });
+
+
 
     // goes to (data.lat, data.lng)
     self.map.setCenter(latlng(lat, lng));
-
   };
 
   self.handleLocationInput = function() {

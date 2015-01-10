@@ -1,29 +1,47 @@
 $primaryColour: #A80000;
+$padding: 10px;
+$transparentWhite: rgba(256,256,256, 0.8);
+$boxShadow: #333 0px 0px 5px;
+
+
 
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 
+.map-container {
+  height: 100%;
+  width: 100%;
+}
+
+
 #map { 
-  float: right;
-  width: 75%;
+  // float: right;
+  width: 100%;
   height: 100%;
 }
 
 header {
-/*  position: fixed;
+  // background: $transparentWhite;
+  padding: $padding;
+  position: fixed;
   top: 10px;
-  left: 20px;
-  z-index: 1;*/
+  left: 10px;
+  z-index: 1;
 }
 
 h2, h5 {
   color: $primaryColour;
 }
 
+.location-form {
+  overflow: hidden;
+  box-shadow: $boxShadow;
+}
+
 .location-form input[type="text"] {
   border: 3px solid $primaryColour;
   padding: 5px;
-  min-width: 260px;  
+  min-width: 260px;
 }
 
 .location-form input[type="submit"] {
@@ -35,7 +53,28 @@ h2, h5 {
 }
 
 .results {
+  background: $transparentWhite;
+  border-left: 1px solid #888;
+  box-shadow: #aaa -1px 0 3px;
+  max-width: 240px;
+  position: fixed;
+  right: 0px;
+  top: 0px;
+  height: 100%;
+  overflow-y: scroll;
+}
 
+.msg-to-user {
+  background: #fff;
+  border-bottom: 2px solid #ddd;  
+  padding: 10px;
+  margin: 0;
+  width: 100%;
+}
+
+.results .address {
+  font-size: 0.85em;
+  margin: 0 0 10px;
 }
 
 .nearby-list {
@@ -44,19 +83,31 @@ h2, h5 {
 }
 
 .nearby-list li {
-  padding: 10px 20px;
+  padding: $padding;
   border-bottom: 1px solid #ddd;
+}
+
+.nearby-list li.active {
+  background: $primaryColour;
+  color: #fff;
+}
+
+.nearby-list li.active h5 {
+  color: #fff;
+}
+
+.nearby-list li:last-child {
+  border-bottom: 0;
 }
 
 .nearby-list li:hover {
   cursor: pointer;
-/*  background: $primaryColour;
-  color: #fff;*/
+  
 }
 
 /*removes scroll bar from infowindows*/
 .place-wrapper {
-  padding: 20px;
+  padding: $padding;
   line-height:1.35;
   overflow:hidden;
   white-space:nowrap;
