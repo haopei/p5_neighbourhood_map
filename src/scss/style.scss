@@ -121,9 +121,13 @@ h2, h5 {
   white-space:nowrap;
 }
 
-.photos {
+.slick-slider.photos {
   position: fixed;
   bottom: 0;
-  left: 0;
+  z-index: 100;
+  background: #fff;
+  padding: 10px;
+  max-height: 220px;
+  width: 60%;
+  box-shadow: $boxShadow;
 }
-

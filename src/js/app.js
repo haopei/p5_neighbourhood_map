@@ -34,7 +34,7 @@ var ViewModel = function() {
   *   showing the geocoded version of the
   *   current location being queried.
   */
-  this.currentAddress = ko.observable("Upper Manhattan, NY");
+  this.currentAddress = ko.observable("Upper Manhattan, New York, NY, USA");
 
  /**
   * An array of 'place' JSON objects returned by the
@@ -57,7 +57,7 @@ var ViewModel = function() {
     return this.nearByPlaces().length;
   }, this);
 
-  this.currentPlaceImages = ko.observableArray([]);
+  this.currentPlacePhotos = ko.observableArray([]);
 
   // this.currentGoogleStreetImageUrl  = ko.observable();
 
@@ -154,35 +154,111 @@ var ViewModel = function() {
     });
   };
 
-  // this.testing = function(data) {
-  //   console.log(data);
-  // };
+  this.slick = function() {
+    $('.photos').slick({
+      dots: true,
+      infinite: false,
+      speed: 300,
+      slidesToShow: 4,
+      slidesToScroll: 4,
+      responsive: [
+        {
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3,
+            infinite: true,
+            dots: true
+          }
+        },
+        {
+          breakpoint: 600,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2
+          }
+        },
+        {
+          breakpoint: 480,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1
+          }
+        }
+      ]
+    });
+
+    console.log('slicked');
+  };
+
+  this.unslick = function() {
+    $('.photos').unslick();
+  };
+
+  this.clearPhotos = function() {
+    self.currentPlacePhotos([]);
+  };
 
   this.getPlacePhotos = function(placeData) {
-    self.currentPlaceImages([]);
-    var placeId = placeData.id;
-    var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
-    clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
-    requestURL = 'https://api.foursquare.com/v2/venues/' + placeId + '/photos?client_id=' + clientId + '&client_secret=' + clientSecret + '&limit=5&v=20130815';
+    self.clearPhotos();
+    self.unslick();
+
+    var placeId = placeData.id,
+        limit = 15,
+        clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
+        clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
+        requestURL = 'https://api.foursquare.com/v2/venues/' + placeId + '/photos?client_id=' + clientId + '&client_secret=' + clientSecret + '&limit=' + limit + '&v=20130815';
 
     $.getJSON(requestURL, function(data) {
       var photos = data.response.photos.items,
           prefix, suffix, imageUrl,
-          imgSize = '300x300';
-
-      // console.log(photos);
+          imgSize = '200x200';
 
       photos.forEach(function(photo) {
-        console.log(photo);
         prefix = photo.prefix;
         suffix = photo.suffix;
         imageUrl = prefix + imgSize + suffix;
-        self.currentPlaceImages.push(imageUrl);
+        self.currentPlacePhotos.push(imageUrl);
+      }); // forEach
+      console.log(self.currentPlacePhotos());
+      console.log('self.currentPlacePhotos().length: ' + self.currentPlacePhotos().length);
+    }).success(function() {
+
+      $('.photos').slick({
+        dots: true,
+        infinite: false,
+        speed: 300,
+        slidesToShow: 4,
+        slidesToScroll: 4,
+        responsive: [
+          {
+            breakpoint: 1024,
+            settings: {
+              slidesToShow: 3,
+              slidesToScroll: 3,
+              infinite: true,
+              dots: true
+            }
+          },
+          {
+            breakpoint: 600,
+            settings: {
+              slidesToShow: 2,
+              slidesToScroll: 2
+            }
+          },
+          {
+            breakpoint: 480,
+            settings: {
+              slidesToShow: 1,
+              slidesToScroll: 1
+            }
+          }
+        ]
       });
 
-      console.log(self.currentPlaceImages());
-
-    });
+      console.log('slicked');
+    }); // getJSON
   };
 
  /**
@@ -250,7 +326,7 @@ var ViewModel = function() {
   */
   // goes to marker position when a corresponding place is clicked
   this.goToMarker = function(marker) {
-    console.log(marker);
+    // console.log(marker);
     self.map.setCenter(latlng(marker.position.k, marker.position.D));
     var content = '<div class="place-wrapper"><h5 class="name">' + marker.title +
                   '</h5><div class="address">' + marker.address +
@@ -305,11 +381,11 @@ var ViewModel = function() {
     */
     self.findNearByWithFoursquare(lat, lng, function() {
 
-      console.log('nearByPlaces');
-      console.log(self.nearByPlaces());
+      // console.log('nearByPlaces');
+      // console.log(self.nearByPlaces());
 
-      console.log('nearByMarkers');
-      console.log(self.nearByMarkers());
+      // console.log('nearByMarkers');
+      // console.log(self.nearByMarkers());
 
       // only runs when findNearByWithFourSquare succeeds
       // adds 'active' class to clicked <li>
@@ -370,7 +446,6 @@ var ViewModel = function() {
   };
   self.map = new google.maps.Map(mapDiv, mapOptions);
 }; // ViewModel
-
 
 ko.applyBindings( new ViewModel() );
 

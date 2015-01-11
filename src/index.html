@@ -9,14 +9,26 @@
 	<link rel="stylesheet" href="../bower_components/normalize.css/normalize.css">
   <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../bower_components/slick.js/slick/slick.css">
   <link rel="stylesheet" media="(max-width: 800px)" href="css/responsive.css">
 
   <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 </head>
 
 <body>
+  <!-- photos start -->
+
+  <div class="photos" data-bind="foreach: $root.currentPlacePhotos">
+      <div><img src="" alt="" data-bind="attr: { src: $data }"></div>
+    </div>
+
+
+  <!-- photos end -->
 
   <header>
+    <button data-bind="click: unslick">unslick</button>
+    <button data-bind="click: slick">slick</button>
+    <button data-bind="click: clearPhotos">clear photos</button>
     <form data-bind="submit: handleLocationInput" class="location-form">
       <input data-bind="value: currentAddress" type="text" value="San Francisco" placeholder="Neighbourhood">
       <input type="submit" value="Find Pizza">
@@ -36,29 +48,19 @@
           <h5 data-bind="text: title"></h5>
           <div class="address" data-bind="text: address"></div>
           <button data-bind="click: $root.getPlacePhotos">Photos</button>
-          <!-- <a href="" data-bind="attr: {href: url}">website</a> -->
-<!--           <button class="zoom zoom-in" data-bind="click: $root.markerZoomIn">Zoom In</button> -->
-
-<!--           <button class="zoom zoom-out" data-bind="click: $root.markerZoomOut">Zoom Out</button>
- -->
+          <button class="zoom zoom-in" data-bind="click: $root.markerZoomIn">Zoom In</button>
         </li>
       </ul>
     </div>
   </div> <!-- results -->
 
-  <!-- photos start -->
-  <ul class="photos" data-bind="foreach: $root.currentPlaceImages">
-    <li><img src="" alt="" data-bind="attr: { src: $data }"></li>
-  </ul>
-  <!-- photos end -->
-
   <script src="../bower_components/jquery/dist/jquery.js"></script>
-  <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <!-- <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script> -->
   <script src="../bower_components/knockout/dist/knockout.js"></script>
+  <script src="../bower_components/slick.js/slick/slick.min.js"></script>
   <script src="js/app.js"></script>
 
   <script type="text/javascript">
-  //
   </script>
 
 </body>

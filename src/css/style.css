@@ -17,4 +17,4 @@ h2,h5{color:#A80000}
 .nearby-list li:last-child{border-bottom:0}
 .nearby-list li:hover{cursor:pointer}
 .place-wrapper{padding:10px;line-height:1.35;overflow:hidden;white-space:nowrap}
-.photos{position:fixed;bottom:0;left:0}
+.slick-slider.photos{position:fixed;bottom:0;z-index:100;background:#fff;padding:10px;max-height:220px;width:60%;box-shadow:#333 0 0 5px}
