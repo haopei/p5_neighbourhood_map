@@ -29,19 +29,28 @@
   <div>
 
   <div class="results">
-
     <div data-bind="visible: nearByMarkers().length > 0">
       <h4 class="msg-to-user" data-bind="text: msgToUser"></h4>
       <ul class="nearby-list" data-bind="foreach: nearByMarkers">
         <li data-bind="click: $root.goToMarker, attr: { id: id }" class="clickable">
           <h5 data-bind="text: title"></h5>
           <div class="address" data-bind="text: address"></div>
-<!--           <button class="zoom zoom-in" data-bind="click: $root.markerZoomIn">Zoom In</button>
-          <button class="zoom zoom-out" data-bind="click: $root.markerZoomOut">Zoom Out</button> -->
+          <button data-bind="click: $root.getPlacePhotos">Photos</button>
+          <!-- <a href="" data-bind="attr: {href: url}">website</a> -->
+<!--           <button class="zoom zoom-in" data-bind="click: $root.markerZoomIn">Zoom In</button> -->
+
+<!--           <button class="zoom zoom-out" data-bind="click: $root.markerZoomOut">Zoom Out</button>
+ -->
         </li>
       </ul>
     </div>
   </div> <!-- results -->
+
+  <!-- photos start -->
+  <ul class="photos" data-bind="foreach: $root.currentPlaceImages">
+    <li><img src="" alt="" data-bind="attr: { src: $data }"></li>
+  </ul>
+  <!-- photos end -->
 
   <script src="../bower_components/jquery/dist/jquery.js"></script>
   <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>

@@ -12,8 +12,9 @@ h2,h5{color:#A80000}
 .results .address{font-size:.85em;margin:0 0 10px}
 .nearby-list{padding:0;list-style:none}
 .nearby-list li{padding:10px;border-bottom:1px solid #ddd}
-.nearby-list li.active{background:#A80000;color:#fff}
-.nearby-list li.active h5{color:#fff}
+.nearby-list li.active{font-size:1.25em;background-color:#A80000;background-image:url(../images/pizzaPattern.png);background-size:cover;color:#fff;text-shadow:#000 1px 1px 3px;border-top:1px solid #777;border-bottom:1px solid #777}
+.nearby-list li.active h5{color:#fff;font-size:1.25em}
 .nearby-list li:last-child{border-bottom:0}
 .nearby-list li:hover{cursor:pointer}
 .place-wrapper{padding:10px;line-height:1.35;overflow:hidden;white-space:nowrap}
+.photos{position:fixed;bottom:0;left:0}

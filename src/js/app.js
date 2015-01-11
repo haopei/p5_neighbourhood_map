@@ -34,7 +34,7 @@ var ViewModel = function() {
   *   showing the geocoded version of the
   *   current location being queried.
   */
-  this.currentAddress = ko.observable("Georgetown Guyana");
+  this.currentAddress = ko.observable("Upper Manhattan, NY");
 
  /**
   * An array of 'place' JSON objects returned by the
@@ -54,8 +54,12 @@ var ViewModel = function() {
   * The number of nearby places returned by Foursquare
   */
   this.numOfNearByPlaces = ko.computed(function() {
-    return this.nearByMarkers().length;
+    return this.nearByPlaces().length;
   }, this);
+
+  this.currentPlaceImages = ko.observableArray([]);
+
+  // this.currentGoogleStreetImageUrl  = ko.observable();
 
 
  /**
@@ -114,12 +118,16 @@ var ViewModel = function() {
        *   self.nearByMarkers() and self.nearByPlaces()
        */
       foursquareNearByPlaces.forEach(function(p) {
+
         // push marker objects to self.nearByMarkers()
         self.nearByMarkers.push(new google.maps.Marker({
           map: self.map,
           position: latlng(p.location.lat, p.location.lng),
           title: p.name,
           address: p.location.address,
+          city: p.location.city,
+          contact: p.contact.formattedPhone,
+          // menu: p.menu.url || null,
           url: p.url,
           id: p.id
         }));
@@ -146,6 +154,37 @@ var ViewModel = function() {
     });
   };
 
+  // this.testing = function(data) {
+  //   console.log(data);
+  // };
+
+  this.getPlacePhotos = function(placeData) {
+    self.currentPlaceImages([]);
+    var placeId = placeData.id;
+    var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
+    clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
+    requestURL = 'https://api.foursquare.com/v2/venues/' + placeId + '/photos?client_id=' + clientId + '&client_secret=' + clientSecret + '&limit=5&v=20130815';
+
+    $.getJSON(requestURL, function(data) {
+      var photos = data.response.photos.items,
+          prefix, suffix, imageUrl,
+          imgSize = '300x300';
+
+      // console.log(photos);
+
+      photos.forEach(function(photo) {
+        console.log(photo);
+        prefix = photo.prefix;
+        suffix = photo.suffix;
+        imageUrl = prefix + imgSize + suffix;
+        self.currentPlaceImages.push(imageUrl);
+      });
+
+      console.log(self.currentPlaceImages());
+
+    });
+  };
+
  /**
   * Sets 'current location' marker on map,
   *   determined by user query.
@@ -166,7 +205,7 @@ var ViewModel = function() {
   };
 
  /**
-  * Sets markers on map using the self.nearByMarkers() observable array.
+  * Sets markers on map using the self.nearByPlaces() observable array.
   *
   */
   this.setNearByMarkers = function() {
@@ -195,9 +234,7 @@ var ViewModel = function() {
       // marker click event handler
       google.maps.event.addListener(marker, 'click', (function(marker) {
         return function() {
-        var content = '<div class="place-wrapper"><h5 class="name">' + marker.title +
-                      '</h5><div class="address">' + marker.address +
-                      '</div></div>';
+        var content = '<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div></div>';
           infoWindow.setContent(content);
           infoWindow.open(self.map, marker);
         };
@@ -222,14 +259,26 @@ var ViewModel = function() {
     infoWindow.open(self.map, marker);
   };
 
-  // this.markerZoomIn = function(data) {
-  //   self.map.setZoom(self.map.zoom + 1);
-  // };
+  this.markerZoomIn = function(data) {
+    self.map.setZoom(16);
+  };
 
   // this.markerZoomOut = function(data) {
   //   self.map.setZoom(self.map.zoom - 1);
   // };
 
+
+  // this.getGoogleStreetImg = function(markerData) {
+  //   console.log(markerData);
+  //   var apiKey = 'AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4';
+  //   var lat = markerData.position.k;
+  //   var lng = markerData.position.D;
+  //   var requestURL = 'https://maps.googleapis.com/maps/api/streetview?size=400x400&location=' + lat + ',' + lng + '&key=' + apiKey;
+  //   console.log(requestURL);
+  //   self.currentGoogleStreetImageUrl(requestURL);
+  //   console.log(self.currentGoogleStreetImageUrl());
+  //   // return requestURL;
+  // };
 
  /**
   * Sets current marker, address, and map center to
@@ -255,6 +304,12 @@ var ViewModel = function() {
     *
     */
     self.findNearByWithFoursquare(lat, lng, function() {
+
+      console.log('nearByPlaces');
+      console.log(self.nearByPlaces());
+
+      console.log('nearByMarkers');
+      console.log(self.nearByMarkers());
 
       // only runs when findNearByWithFourSquare succeeds
       // adds 'active' class to clicked <li>
@@ -291,6 +346,11 @@ var ViewModel = function() {
 
   };
 
+  // testing get photo request
+  // self.getPlacePhotos('4af216e7f964a520d0e521e3');
+  // https://api.foursquare.com/v2/venues/49781819/photos?client_id=RPH01ZJ1WAGI…&client_secret=YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ&v=20130815
+  // https://api.foursquare.com/v2/venues/43695300f964a5208c291fe3/photos?client_id=RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP&client_secret=YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ&v=20150110
+
  /**
   *
   *
@@ -313,6 +373,8 @@ var ViewModel = function() {
 
 
 ko.applyBindings( new ViewModel() );
+
+// google api key: AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4
 
 // todo
 // change marker style to indicate select state

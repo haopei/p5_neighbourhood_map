@@ -89,12 +89,19 @@ h2, h5 {
 }
 
 .nearby-list li.active {
-  background: $primaryColour;
+  font-size: 1.25em;
+  background-color: $primaryColour;
+  background-image: url(../images/pizzaPattern.png); // photo credit: http://www.colourlovers.com/pattern/780193/Pizza_Connection
+  background-size: cover;
   color: #fff;
+  text-shadow: #000 1px 1px 3px;
+  border-top: 1px solid #777;
+  border-bottom: 1px solid #777;
 }
 
 .nearby-list li.active h5 {
   color: #fff;
+  font-size: 1.25em;
 }
 
 .nearby-list li:last-child {
@@ -112,5 +119,11 @@ h2, h5 {
   line-height:1.35;
   overflow:hidden;
   white-space:nowrap;
+}
+
+.photos {
+  position: fixed;
+  bottom: 0;
+  left: 0;
 }
 
