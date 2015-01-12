@@ -99,6 +99,10 @@ h2, h5 {
   border-bottom: 1px solid #777;
 }
 
+.nearby-list li.active button {
+  color: $primaryColour;
+}
+
 .nearby-list li.active h5 {
   color: #fff;
   font-size: 1.25em;
@@ -121,13 +125,17 @@ h2, h5 {
   white-space:nowrap;
 }
 
-.slick-slider.photos {
+.photos-container {
   position: fixed;
   bottom: 0;
   z-index: 100;
   background: #fff;
-  padding: 10px;
   max-height: 220px;
   width: 60%;
   box-shadow: $boxShadow;
+}
+
+.photos,
+.photo-message {
+  padding: 10px;
 }

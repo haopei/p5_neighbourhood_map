@@ -34,7 +34,7 @@ var ViewModel = function() {
   *   showing the geocoded version of the
   *   current location being queried.
   */
-  this.currentAddress = ko.observable("Upper Manhattan, New York, NY, USA");
+  this.currentAddress = ko.observable("2465 Latham Street, Mountain View, CA");
 
  /**
   * An array of 'place' JSON objects returned by the
@@ -57,10 +57,17 @@ var ViewModel = function() {
     return this.nearByPlaces().length;
   }, this);
 
+  /**
+   * An array of photo URLs of the the currently selected pizza place.
+   *   Data is retrieved from Foursquare Venue API
+   */
   this.currentPlacePhotos = ko.observableArray([]);
 
-  // this.currentGoogleStreetImageUrl  = ko.observable();
-
+  /**
+   * A text message shown to the user to indicate
+   *   the progress of retrieving photos of selected venue
+   */
+  this.photosMessage = ko.observable();
 
  /**
   * Google's Geocoding API
@@ -112,7 +119,6 @@ var ViewModel = function() {
       // list of places objects returned
       foursquareNearByPlaces = data.response.venues;
 
-
       /**
        * push places objects to both observable arrays:
        *   self.nearByMarkers() and self.nearByPlaces()
@@ -154,9 +160,10 @@ var ViewModel = function() {
     });
   };
 
+  // apply 'slick carousel' to the retrieved photos the selected place.
   this.slick = function() {
     $('.photos').slick({
-      dots: true,
+      dots: false,
       infinite: false,
       speed: 300,
       slidesToShow: 4,
@@ -187,7 +194,6 @@ var ViewModel = function() {
         }
       ]
     });
-
     console.log('slicked');
   };
 
@@ -199,66 +205,66 @@ var ViewModel = function() {
     self.currentPlacePhotos([]);
   };
 
-  this.getPlacePhotos = function(placeData) {
+  // slick carousel must be reset before adding new elements to the dom
+  this.resetSlick = function() {
     self.clearPhotos();
     self.unslick();
+  };
+
+
+  /**
+   * $.getJSON() request for photo objects of selected venue
+   *   using Foursquare's Venue API. Pushes the returned objects to
+   *   self.currentPlacePhotos observableArray to be data-binded in the dom.
+   * @param {object} parameter object is retrieved from
+   *   data-bind in DOM element (the 'Photos' button)
+   */
+  this.getPlacePhotos = function(placeData) {
+
+    // Shows user the progress of photo request
+    self.photosMessage('Looking for photos...');
+
+    // Since new photo elements may be added to the dom,
+    //   we need to reset the slick carousel
+    self.resetSlick();
 
     var placeId = placeData.id,
+        placeName = placeData.title,
         limit = 15,
         clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
         clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
         requestURL = 'https://api.foursquare.com/v2/venues/' + placeId + '/photos?client_id=' + clientId + '&client_secret=' + clientSecret + '&limit=' + limit + '&v=20130815';
 
+    // send request for photos
     $.getJSON(requestURL, function(data) {
       var photos = data.response.photos.items,
           prefix, suffix, imageUrl,
           imgSize = '200x200';
 
+      // Shows user message dependent on length of returned photos
+      if (photos.length === 0) {
+        self.photosMessage('No photos found of ' + placeData.title);
+      } else {
+        self.photosMessage('Found ' + photos.length + ' photos of ' + placeData.title);
+      }
+
+      // push returned photo objects to an observable array
+      //   to be used for data-bind
       photos.forEach(function(photo) {
         prefix = photo.prefix;
         suffix = photo.suffix;
         imageUrl = prefix + imgSize + suffix;
         self.currentPlacePhotos.push(imageUrl);
-      }); // forEach
+      }); // forEach end
+
       console.log(self.currentPlacePhotos());
       console.log('self.currentPlacePhotos().length: ' + self.currentPlacePhotos().length);
+
     }).success(function() {
-
-      $('.photos').slick({
-        dots: true,
-        infinite: false,
-        speed: 300,
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        responsive: [
-          {
-            breakpoint: 1024,
-            settings: {
-              slidesToShow: 3,
-              slidesToScroll: 3,
-              infinite: true,
-              dots: true
-            }
-          },
-          {
-            breakpoint: 600,
-            settings: {
-              slidesToShow: 2,
-              slidesToScroll: 2
-            }
-          },
-          {
-            breakpoint: 480,
-            settings: {
-              slidesToShow: 1,
-              slidesToScroll: 1
-            }
-          }
-        ]
-      });
-
-      console.log('slicked');
-    }); // getJSON
+      // apply 'slick carousel' to the currently retrieved photos
+      //   upon the success of request
+      self.slick();
+    });
   };
 
  /**
@@ -272,6 +278,7 @@ var ViewModel = function() {
       title: "You are here"
     });
 
+    // Click event listener for the 'current location' marker
     google.maps.event.addListener(marker, 'click', (function(marker) {
       return function() {
         infoWindow.setContent('You are here');
@@ -281,8 +288,8 @@ var ViewModel = function() {
   };
 
  /**
-  * Sets markers on map using the self.nearByPlaces() observable array.
-  *
+  * Sets markers on map using the self.nearByPlaces() observable array
+  *   as the source.
   */
   this.setNearByMarkers = function() {
     var marker,
@@ -290,6 +297,10 @@ var ViewModel = function() {
         bounds = new google.maps.LatLngBounds(),
         nearByPlaces = self.nearByPlaces();
 
+    // Create a new marker object for each
+    //   place item inside nearByPlaces() observable array
+    // note: nearByPlaces() contain raw 'places' objects which are returned
+    //   from the Foursquare Venue Search API
     nearByPlaces.forEach(function(place) {
       markerOption = {
         map: self.map,
@@ -298,16 +309,18 @@ var ViewModel = function() {
         address: place.location.address,
         id: place.id
       };
-
+      // create new marker icon
       marker = new google.maps.Marker(markerOption);
       marker.setIcon('images/pizzaMarker.png');
 
       // console.log(marker);
 
-      bounds.extend(marker.getPosition()); // set map zoom to just adequately contain pins
+      // fit bounds will set map zoom to just adequately contain all pins
+      bounds.extend(marker.getPosition());
+      self.map.fitBounds(bounds);
 
-
-      // marker click event handler
+      // For each marker, create a 'click' event handler
+      //   which opens its own InfoWindow
       google.maps.event.addListener(marker, 'click', (function(marker) {
         return function() {
         var content = '<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div></div>';
@@ -315,16 +328,13 @@ var ViewModel = function() {
           infoWindow.open(self.map, marker);
         };
       })(marker));
-      // fit bounds
-      self.map.fitBounds(bounds);
+
     });
   };
 
  /**
-  *
-  *
+  * Centers the map to a given marker object
   */
-  // goes to marker position when a corresponding place is clicked
   this.goToMarker = function(marker) {
     // console.log(marker);
     self.map.setCenter(latlng(marker.position.k, marker.position.D));
@@ -335,26 +345,10 @@ var ViewModel = function() {
     infoWindow.open(self.map, marker);
   };
 
+  // zoom into the map, centered around the 'currently selected marker'
   this.markerZoomIn = function(data) {
     self.map.setZoom(16);
   };
-
-  // this.markerZoomOut = function(data) {
-  //   self.map.setZoom(self.map.zoom - 1);
-  // };
-
-
-  // this.getGoogleStreetImg = function(markerData) {
-  //   console.log(markerData);
-  //   var apiKey = 'AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4';
-  //   var lat = markerData.position.k;
-  //   var lng = markerData.position.D;
-  //   var requestURL = 'https://maps.googleapis.com/maps/api/streetview?size=400x400&location=' + lat + ',' + lng + '&key=' + apiKey;
-  //   console.log(requestURL);
-  //   self.currentGoogleStreetImageUrl(requestURL);
-  //   console.log(self.currentGoogleStreetImageUrl());
-  //   // return requestURL;
-  // };
 
  /**
   * Sets current marker, address, and map center to
@@ -365,7 +359,15 @@ var ViewModel = function() {
   self.goTo = function(data) {
     var lat = data.lat, lng = data.lng;
 
-    // updates self.currentAddress value (user input field value)
+    // reset slick
+    // if slick carousel is opened previously,
+    // this function resets it before another place is being visited
+    self.resetSlick();
+
+    // reset photos message before new photos are requested
+    self.photosMessage(null);
+
+    // sets self.currentAddress to the geocoded value of user location query
     self.currentAddress(data.formattedAddress);
 
     // Puts marker on map of current address being queried and visited
@@ -375,44 +377,41 @@ var ViewModel = function() {
     // self.msgToUser('Looking for pizza nearby...');
 
    /**
-    *
-    *
-    *
+    * Uses the Foursquare Venue Search API to find places nearby
+    *   given a (lat,lng) coordinate.
+    * Uses a callback function which adds the 'active' class
+    *   to the <li> item being clicked.
     */
     self.findNearByWithFoursquare(lat, lng, function() {
-
-      // console.log('nearByPlaces');
-      // console.log(self.nearByPlaces());
-
-      // console.log('nearByMarkers');
-      // console.log(self.nearByMarkers());
-
-      // only runs when findNearByWithFourSquare succeeds
-      // adds 'active' class to clicked <li>
+      // this callback only runs when Venue Search succeeds
+      //   adds 'active' class to clicked <li>
       $('.clickable').click(function() {
         $('.clickable').removeClass('active');
         $(this).addClass("active");
       });
     });
 
-    // goes to (data.lat, data.lng)
+    // centers the map around the given (lat,lng) coordinates
     self.map.setCenter(latlng(lat, lng));
   };
 
  /**
-  *
+  * Runs on location query form submit in the UI.
   *
   */
   self.handleLocationInput = function() {
+
+    // self.currentAddress() holds the user location query
     var addressQuery = self.currentAddress();
 
-    // clear existing results before processing new query
+    // clear existing cached results before processing new query
     self.nearByMarkers([]);
     self.nearByPlaces([]);
 
-    // Tells the user we are geocoding
+    // Updates user on progress in real time
     self.msgToUser('Geocoding your location query...');
 
+    // Prevents user from inputting blank value
     if (addressQuery) {
       self.geocode(addressQuery, self.goTo);
     } else {
@@ -422,16 +421,10 @@ var ViewModel = function() {
 
   };
 
-  // testing get photo request
-  // self.getPlacePhotos('4af216e7f964a520d0e521e3');
-  // https://api.foursquare.com/v2/venues/49781819/photos?client_id=RPH01ZJ1WAGI…&client_secret=YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ&v=20130815
-  // https://api.foursquare.com/v2/venues/43695300f964a5208c291fe3/photos?client_id=RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP&client_secret=YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ&v=20150110
-
  /**
-  *
+  * Instantiate Map object
   *
   */
-  // init map
   var mapDiv, mapOptions;
   mapDiv = document.getElementById('map');
   mapOptions = {
