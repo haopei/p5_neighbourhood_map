@@ -1,10 +1,13 @@
 var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minifyCss = require('gulp-minify-css'),
-    plumber = require('gulp-plumber'), // prevents pipe breaking caused by errors 
-    sass = require('gulp-ruby-sass');
+    minifyHtml = require('gulp-minify-html'),
+    plumber = require('gulp-plumber'), // prevents pipe breaking caused by errors
+    sass = require('gulp-ruby-sass'),
+    concat = require('gulp-concat');
 
 var srcPaths = {
+  'templates': 'src/*.html',
   'js': 'src/js/*.js',
   'scss': 'src/scss/*.scss',
   'css': 'src/css/',
@@ -12,28 +15,37 @@ var srcPaths = {
 };
 
 var distPaths = {
+  'templates': 'dist/',
   'js': 'dist/js/',
   'css': 'dist/css/',
   'img': 'dist/images/'
 };
 
+// Template Tasks
+gulp.task('templates', function() {
+  gulp.src(srcPaths.templates)
+  .pipe(minifyHtml())
+  .pipe(gulp.dest(distPaths.templates));
+});
+
 // Scripts Task (Uglifies JS files)
-//    can be run separately with $ gulp scripts
+//   can be run separately with $ gulp scripts
 gulp.task('scripts', function() {
   gulp.src(srcPaths.js)
     .pipe(plumber()) // placed before all other pipes
+    .pipe(concat('vendor.js'))
     .pipe(uglify())
     .pipe(gulp.dest(distPaths.js));
 });
 
 // Styles Task
-// converts .scss to .css 
-//  from src into both src/css and dist/css
+// converts .scss to .css
+//   from src into both src/css and dist/css
 gulp.task('styles', function() {
   gulp.src(srcPaths.scss)
     .pipe(plumber()) // placed before all other pipes again
     .pipe(sass())
-    .pipe(minifyCss({ keepBreaks:true }))
+    .pipe(minifyCss())
     .pipe(gulp.dest(srcPaths.css))
     .pipe(gulp.dest(distPaths.css));
 });
@@ -44,8 +56,8 @@ gulp.task('styles', function() {
 gulp.task('watch', function() {
   gulp.watch(srcPaths.js, ['scripts']);
   gulp.watch(srcPaths.scss, ['styles']);
-  // gulp.watch(srcPaths.img, ['image']);
+  gulp.watch(srcPaths.templates, ['templates']);
 });
 
 // default is required
-gulp.task('default', ['scripts', 'styles', 'watch']);
+gulp.task('default', ['templates','scripts', 'styles', 'watch']);

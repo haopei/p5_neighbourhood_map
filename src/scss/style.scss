@@ -4,8 +4,6 @@ $transparentWhite: rgba(256,256,256, 0.8);
 $boxShadow: #333 0px 0px 5px;
 $radius: 5px;
 
-
-
 html { height: 100% }
 body { height: 100%; margin: 0; padding: 0 }
 
@@ -14,9 +12,7 @@ body { height: 100%; margin: 0; padding: 0 }
   width: 100%;
 }
 
-
 #map {
-  // float: right;
   width: 100%;
   height: 100%;
 }
@@ -117,7 +113,7 @@ h2, h5 {
 
 }
 
-/*removes scroll bar from infowindows*/
+/* removes scroll bar from infowindows */
 .place-wrapper {
   padding: $padding;
   line-height:1.35;
@@ -139,3 +135,5 @@ h2, h5 {
 .photo-message {
   padding: 10px;
 }
+
+@import 'responsive';

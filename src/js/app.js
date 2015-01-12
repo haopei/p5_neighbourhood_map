@@ -103,6 +103,7 @@ var ViewModel = function() {
   * @param {lat, lng, callback}
   * @returns {}
   */
+  // TODO: request timeout during poor internet
   this.findNearByWithFoursquare = function(lat, lng, callback) {
     var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
         clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
@@ -336,6 +337,7 @@ var ViewModel = function() {
   * Centers the map to a given marker object
   */
   this.goToMarker = function(marker) {
+
     // console.log(marker);
     self.map.setCenter(latlng(marker.position.k, marker.position.D));
     var content = '<div class="place-wrapper"><h5 class="name">' + marker.title +
@@ -431,6 +433,7 @@ var ViewModel = function() {
     zoom: 9,
     center: latlng(37.7831, -122.4039),
     disableDefaultUI: true,
+    scrollwheel: false,
     zoomControl: true,
     zoomControlOptions: {
       style: google.maps.ZoomControlStyle.LARGE,

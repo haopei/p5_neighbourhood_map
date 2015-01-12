@@ -1,0 +1,30 @@
+@media(max-width: 800px) {
+  header {
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+
+  .results {
+    position: relative;
+    overflow: visible;
+    max-width: 100%;
+    box-shadow: none;
+    border: none;
+  }
+
+  .msg-to-user {
+    position: relative;
+  }
+
+  .location-form input[type=submit] {
+    min-width: 100%;
+    display: block;
+    margin: 0;
+  }
+
+  .location-form input[type=text] {
+    width: 100%;
+  }
+}
+
