@@ -74,9 +74,9 @@ var ViewModel = function() {
   * @param {string, callback}
   * @returns {object} returns object given an address string
   */
-  // TODO: fail gracefully
 
   this.geocode = function(location, callback) {
+
     var requestURL = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + location + '&key=AIzaSyB6tnYAqdRsoSx6iA5m7OV0cdtsGktBtD4';
     $.getJSON(requestURL, function(data) {
       // shouldn't something go here?
@@ -104,7 +104,6 @@ var ViewModel = function() {
   * @param {lat, lng, callback}
   * @returns {}
   */
-  // TODO: request timeout during poor internet
   this.findNearByWithFoursquare = function(lat, lng, callback) {
     var clientSecret = 'YW0AAODCCRPPNDUKKQ1KPTDUEERZV3CUSPUMD3FLEUUJP1XQ',
         clientId = 'RPH01ZJ1WAGIPXB3CDAA12ES4CKL10X24XH4FN0TKX21EJFP',
@@ -135,7 +134,7 @@ var ViewModel = function() {
           address: p.location.address,
           city: p.location.city,
           contact: p.contact.formattedPhone,
-          // menu: p.menu.url || null,
+          icon: 'images/pizzaMarker.png',
           url: p.url,
           id: p.id
         }));
@@ -459,6 +458,3 @@ var ViewModel = function() {
 }; // ViewModel
 
 ko.applyBindings( new ViewModel() );
-
-// todo
-// use setTimeout to handle long lost requests
