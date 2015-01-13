@@ -6,9 +6,10 @@ Project
   P5: Neighbourhood Map
 
 How To Use
-  1. Open dist/index.html. To see un-minified source, see 'src/' folder
+  1. Open dist/index.html. (To see un-minified source, see 'src/' folder)
   2. Enter a location in the search box. Try an exact address (example: '2465 Latham Street, Mountain View, CA'), a city/town (   example: 'New York'), or shortnames for places (example: 'ny', 'hk', 'fl', 'jp').
-  3. Once the list of results appear, c
+  3. Click "Find pizza!".
+  4. Once the list of results appear, c
       a. Click on each item to visit the current location on the map.
       b. Click 'Zoom' to  Click 'Photos' to see photos.
       c. Click 'Photos' to request and view photos. (Note: Some places may have no photos)

@@ -263,9 +263,6 @@ var ViewModel = function() {
         self.currentPlacePhotos.push(imageUrl);
       }); // forEach end
 
-      console.log(self.currentPlacePhotos());
-      console.log('self.currentPlacePhotos().length: ' + self.currentPlacePhotos().length);
-
     }).success(function() {
       // apply 'slick carousel' to the currently retrieved photos
       //   upon the success of request
@@ -341,12 +338,10 @@ var ViewModel = function() {
   * Centers the map to a given marker object
   */
   this.goToMarker = function(marker) {
-    console.log(marker);
 
     // reset slick when another marker is clicked
     self.resetSlick();
 
-    // console.log(marker);
     self.map.setCenter(latlng(marker.position.k, marker.position.D));
 
     // handle situation where marker has no address or contact
