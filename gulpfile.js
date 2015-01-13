@@ -8,7 +8,7 @@ var gulp = require('gulp'),
 
 var srcPaths = {
   'templates': 'src/*.html',
-  'js': 'src/js/*.js',
+  'js': 'src/js/files/*.js',
   'scss': 'src/scss/*.scss',
   'css': 'src/css/',
   'img': 'src/images/*'
@@ -34,6 +34,7 @@ gulp.task('scripts', function() {
   gulp.src(srcPaths.js)
     .pipe(plumber()) // placed before all other pipes
     .pipe(concat('vendor.js'))
+    .pipe(gulp.dest('src/js'))
     .pipe(uglify())
     .pipe(gulp.dest(distPaths.js));
 });
@@ -50,6 +51,11 @@ gulp.task('styles', function() {
     .pipe(gulp.dest(distPaths.css));
 });
 
+gulp.task('images', function() {
+  gulp.src(srcPaths.img)
+  .pipe(gulp.dest(distPaths.img));
+});
+
 // Watch JS (runs continuously)
 // watches for changes in a specified folder
 //   and runs tasks on them
@@ -57,7 +63,8 @@ gulp.task('watch', function() {
   gulp.watch(srcPaths.js, ['scripts']);
   gulp.watch(srcPaths.scss, ['styles']);
   gulp.watch(srcPaths.templates, ['templates']);
+  gulp.watch(srcPaths.img, ['images']);
 });
 
 // default is required
-gulp.task('default', ['templates','scripts', 'styles', 'watch']);
+gulp.task('default', ['templates','images', 'scripts', 'styles', 'watch']);

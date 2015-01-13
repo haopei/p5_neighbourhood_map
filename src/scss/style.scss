@@ -37,7 +37,7 @@ h2, h5 {
 .location-form input[type="text"] {
   border: 3px solid $primaryColour;
   padding: 5px;
-  min-width: 260px;
+  min-width: 360px;
 }
 
 .location-form input[type="submit"] {
@@ -66,7 +66,6 @@ h2, h5 {
   box-shadow: #333 0 1px 3px;
   padding: 10px;
   margin: 0;
-  width: 100%;
 }
 
 .results .address {
@@ -126,10 +125,13 @@ h2, h5 {
   bottom: 0;
   z-index: 100;
   background: #fff;
-  max-height: 220px;
-  width: 60%;
+  max-width: 60%;
   box-shadow: $boxShadow;
 }
+
+.slick-slider { margin: 0 !important; }
+.slick-next { right: 10px !important; }
+.slick-prev { left: 10px !important; };
 
 .photos,
 .photo-message {

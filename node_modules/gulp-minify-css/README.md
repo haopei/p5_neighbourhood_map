@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/jonathanepollack/gulp-minify-css.png?branch=master)](https://travis-ci.org/jonathanepollack/gulp-minify-css)
+
+## Regarding Issues
+This is just a simple gulp plugin, which means it's nothing more than a thin wrapper around `clean-css`. If it looks like you are having CSS related issues, please contact <a href="https://github.com/GoalSmashers/clean-css">clean-css</a>. Only create a new issue if it looks like you're having a problem with the plugin itself.
+
 ## Information
 
 <table>
