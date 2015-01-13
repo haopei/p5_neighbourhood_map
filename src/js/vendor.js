@@ -323,6 +323,14 @@ var ViewModel = function() {
       // For each marker, create a 'click' event handler
       //   which opens its own InfoWindow
       google.maps.event.addListener(marker, 'click', (function(marker) {
+        // handle situation where marker has no address or contact
+        if (!marker.contact) {
+          marker.contact = 'No contact available';
+        }
+        if (!marker.address) {
+          marker.address = 'No address available';
+        }
+
         return function() {
           var content = '<div class="place-wrapper"><h5 class="name">' + marker.title + '</h5><div class="address">' + marker.address + '</div><div class="phone">' + marker.contact + '</div></div>';
           infoWindow.setContent(content);
