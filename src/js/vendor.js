@@ -349,7 +349,8 @@ var ViewModel = function() {
     // reset slick when another marker is clicked
     self.resetSlick();
 
-    self.map.setCenter(latlng(marker.position.k, marker.position.D));
+    //
+    self.map.setCenter(latlng(marker.position.lat(), marker.position.lng()));
 
     // handle situation where marker has no address or contact
     if (!marker.contact) {
