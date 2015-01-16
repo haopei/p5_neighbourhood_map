@@ -348,6 +348,8 @@ var ViewModel = function() {
 
     // reset slick when another marker is clicked
     self.resetSlick();
+    // clear photo message to user
+    self.photosMessage(null);
 
     //
     self.map.setCenter(latlng(marker.position.lat(), marker.position.lng()));
@@ -385,6 +387,9 @@ var ViewModel = function() {
     // if slick carousel is opened previously,
     // this function resets it before another place is being visited
     self.resetSlick();
+
+    // clear photo message to user
+    self.photosMessage(null);
 
     // sets self.currentAddress to the geocoded value of user location query
     self.currentAddress(data.formattedAddress);
