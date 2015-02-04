@@ -5,9 +5,9 @@
 
 ## How To Use
 1. Open dist/index.html. (To see un-minified source, see 'src/' folder)
-2. Enter a location in the search box. Try an exact address (example: '2465 Latham Street, Mountain View, CA'), a city/town (   example: 'New York'), or shortnames for places (example: 'ny', 'hk', 'fl', 'jp').
+2. Enter a location in the search box. Try an exact address (example: '2465 Latham Street, Mountain View, CA'), a city/town (example: 'New York'), or shortnames for places (example: 'ny', 'hk', 'fl', 'jp').
 3. Click "Find pizza!".
-4. Once the list of results appear, c
+4. Once the list of results appear,
   1. Click on each item to visit the current location on the map.
   2. Click 'Zoom' to  Click 'Photos' to see photos.
   3. Click 'Photos' to request and view photos. (Note: Some places may have no photos)
